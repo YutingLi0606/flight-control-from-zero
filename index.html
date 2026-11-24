@@ -5550,7 +5550,7 @@ ${setup([['平台', 'Unitree G1 人形机器人（真机迁移）；<b>没有用
 ${K.fig(figSM, '<b>方法</b>：和 DreamerV3 的区别在第 ③ 步——不是靠“得分高低”估方向，而是把奖励对动作的<b>解析梯度</b>沿 32 步想象轨迹反传回策略。模型只要在 32 步内准就行，32 步以后由 critic 估。')}
 <div id="smwalk"></div>
 ${K.fig(resSM, '<b>关键结果</b>：1 块 GPU 训练 3 小时，回报超过 SONIC（128 块 GPU 训练 7 天）；129,514 段动作里失败 25 段（SONIC 179 段）；2 块 GPU 9.8 小时后 0 失败。')}
-${lim(['只在人形上验证；无人机 CTBR 跟踪是新的迁移，世界模型能否学好气动和延迟是未知数' + K.ours('') + '。', '比较对象 SONIC 用的是公开权重，GPU 型号不同（L40 对 H100）。', '预印本，期刊未发表。'])}
+${lim([K.ours('', '只在人形上验证；换到别的平台（例如无人机），世界模型能否学好气动和延迟还不知道') + '。', '比较对象 SONIC 用的是公开权重，GPU 型号不同（L40 对 H100）。', '预印本，期刊未发表。'])}
 ${rel(K.ours('', '它说明“可微世界模型 + 解析梯度”能大幅降低全身控制的训练算力。这种做法能否用到四旋翼这类气动和延迟更重要的系统上，论文没有回答。'), K.ours('', '<a href="#l15">第 15 课</a>'))}
 ${K.more('出处：SuperMimic', '<p>Q. Liao, Y. Shao, J. Long, K. Zakka, R. Horowitz, P. Abbeel, K. Sreenath, “SuperMimic: Scaling humanoid whole-body control with one differentiable world model,” arXiv 2610.28480（读 v3 全文，2026-11-19）。1 H100 × 3 h 与 128 L40 × 168 h（图 1）；约 21,000 GPU·h（引言）；>1000×、25 / 179、9.8 h 两块 GPU 0 失败（摘要）；H = 32、k = 8（第 3.2–3.3 节）；MuJoCo Warp、50 Hz、10× / 62× 与约 64× 想象步（图 5 及正文）。</p>')}
 
