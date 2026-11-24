@@ -1,0 +1,188 @@
+<title>飞控从零学起</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: lesson list on the left, one lesson at a time on the right; every lesson = text + live demo + quiz. */
+:root {
+  --bg: #F2F4F7; --panel: #FFFFFF; --ink: #16202D; --soft: #586374; --line: #D8DDE5; --grid: #E7EBF0;
+  --accent: #0D7A84; --tint: #E2F0F1; --b: #3157C9; --warn: #CF7A22; --warnbg: #FBEEDD; --bad: #C2433A; --ok: #2E8452;
+  --f-head: "Space Grotesk", "Noto Sans SC", system-ui, sans-serif;
+  --f-body: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0E141B; --panel: #161F2A; --ink: #E5EAF0; --soft: #9BA7B5; --line: #2B3745; --grid: #212B37;
+  --accent: #41B9C3; --tint: #13343A; --b: #809EF2; --warn: #EBA75C; --warnbg: #3A2B17; --bad: #E8776D; --ok: #5DC18C; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #0E141B; --panel: #161F2A; --ink: #E5EAF0; --soft: #9BA7B5; --line: #2B3745; --grid: #212B37;
+  --accent: #41B9C3; --tint: #13343A; --b: #809EF2; --warn: #EBA75C; --warnbg: #3A2B17; --bad: #E8776D; --ok: #5DC18C; color-scheme: dark }
+
+* { box-sizing: border-box }
+body { background: var(--bg); color: var(--ink); font: 16px/1.75 var(--f-body); margin: 0 }
+.app { display: grid; grid-template-columns: 250px minmax(0, 1fr); min-height: 100vh }
+nav { border-right: 1px solid var(--line); padding-block: 28px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: 16px; position: sticky; top: env(safe-area-inset-top, 0px); height: 100vh; overflow-y: auto }
+nav .brand { font: 700 19px/1.3 var(--f-head); margin: 0 0 4px }
+nav .brand-sub { color: var(--soft); font-size: 13px; margin: 0 0 20px }
+nav ol { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px }
+nav a { display: grid; grid-template-columns: 28px 1fr 16px; align-items: baseline; gap: 6px; padding: 7px 8px; border-radius: 6px; color: var(--ink); text-decoration: none; font-size: 14.5px; line-height: 1.4 }
+nav a .n { font: 600 13px var(--f-mono); color: var(--soft) }
+nav a:hover { background: var(--grid) }
+nav a[aria-current="page"] { background: var(--tint); color: var(--accent); font-weight: 500 }
+nav a[aria-current="page"] .n { color: var(--accent) }
+nav a .ck { color: var(--ok); font-size: 13px }
+nav .sep { height: 1px; background: var(--line); margin: 10px 4px }
+nav .part { font: 600 12px var(--f-body); color: var(--soft); letter-spacing: .04em; margin: 14px 8px 4px }
+main { padding-block: 40px 80px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); min-width: 0 }
+.lesson { max-width: 860px; margin: 0 auto; display: flex; flex-direction: column; gap: 18px }
+.lesson > p, .lesson > ul, .lesson > ol { max-width: 68ch; margin: 0 }
+.eyebrow { font: 600 13px var(--f-mono); letter-spacing: .06em; color: var(--accent); text-transform: uppercase; margin: 0 }
+h1 { font: 700 clamp(28px, 4.2vw, 40px)/1.2 var(--f-head); margin: 0; text-wrap: balance }
+h2 { font: 700 23px/1.35 var(--f-head); margin: 22px 0 0; text-wrap: balance }
+h3 { font: 600 17px/1.4 var(--f-head); margin: 0 }
+.lede { font-size: 18px; color: var(--soft) }
+p { margin: 0 }
+ul, ol { padding-left: 1.3em; margin: 0 }
+li + li { margin-top: 4px }
+b, strong { font-weight: 600 }
+a { color: var(--accent) }
+.term { font-weight: 600; color: var(--accent) }
+.idea { background: var(--tint); border-radius: 10px; padding: 16px 20px; display: flex; flex-direction: column; gap: 8px; max-width: 68ch }
+.idea h3 { color: var(--accent) }
+.warnbox { background: var(--warnbg); border-radius: 10px; padding: 14px 20px; max-width: 68ch }
+.formula { font: 500 17px/1.6 var(--f-mono); background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px 20px; overflow-x: auto; max-width: 68ch }
+.formula .where { font: 14px/1.7 var(--f-body); color: var(--soft); margin-top: 8px }
+.formula sub, .formula sup { font-size: .72em }
+code, .mono { font-family: var(--f-mono); font-size: .92em }
+.tblwrap { overflow-x: auto; max-width: 100% }
+table.tbl { border-collapse: collapse; font-size: 15px; min-width: 100%; background: var(--panel) }
+.tbl th, .tbl td { border: 1px solid var(--line); padding: 8px 12px; text-align: left; vertical-align: top }
+.tbl th { background: var(--grid); font-weight: 600 }
+.fig { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 16px }
+.fig svg { max-width: 100%; height: auto }
+.fig .cap { flex: 1 1 240px; min-width: 0; font-size: 14.5px; color: var(--soft) }
+.flow { display: flex; flex-wrap: wrap; align-items: stretch; gap: 6px; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 16px }
+.flow .bx { flex: 1 1 120px; min-width: 0; border: 1.5px solid var(--line); border-radius: 8px; padding: 8px 10px; font-size: 14px; line-height: 1.45 }
+.flow .bx b { display: block; font-family: var(--f-head); font-size: 15px }
+.flow .bx .s { color: var(--soft); font-size: 12.5px }
+.flow .bx.hl { border-color: var(--accent); background: var(--tint) }
+.flow .bx.px { border-color: var(--warn); background: var(--warnbg) }
+.flow .ar { align-self: center; color: var(--soft); font: 600 18px var(--f-mono) }
+
+.demo { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 18px; display: flex; flex-direction: column; gap: 14px; box-shadow: 0 1px 0 var(--line) }
+.demo-head { display: flex; flex-direction: column; gap: 4px }
+.demo-head .tag { font: 600 12px var(--f-mono); letter-spacing: .06em; color: var(--warn); text-transform: uppercase }
+.demo-head p { color: var(--soft); font-size: 14.5px; max-width: 70ch }
+/* inline-SVG diagrams (K.S / K.fig), walkthroughs (K.steps), collapsible details (K.more) */
+.svgfig { margin: 0; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px 14px 10px; display: flex; flex-direction: column; gap: 8px }
+.svgfig svg { width: 100%; height: auto; display: block }
+.svgfig.narrow { max-width: 520px }
+.svgfig figcaption { color: var(--soft); font-size: 14px; line-height: 1.6 }
+.figrow { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; align-items: start }
+.sv-box { fill: var(--panel); stroke: var(--line); stroke-width: 1.5 }
+.sv-box.hl { fill: var(--tint); stroke: var(--accent) }
+.sv-box.px { fill: var(--warnbg); stroke: var(--warn) }
+.sv-box.b { stroke: var(--b) }
+.sv-box.on { stroke-width: 3 }
+.sv-box.dim, text.dim { opacity: .35 }
+.sv-t { fill: var(--ink); font: 600 14px var(--f-body) }
+.sv-s { fill: var(--soft); font: 12.5px var(--f-body) }
+.sv-n { fill: var(--accent); font: 600 13.5px var(--f-mono) }
+.sv-nw { fill: var(--warn); font: 600 13.5px var(--f-mono) }
+.sv-nb { fill: var(--b); font: 600 13.5px var(--f-mono) }
+.sv-big { fill: var(--ink); font: 700 18px var(--f-head) }
+.sv-s.acc { fill: var(--accent) } .sv-s.warn { fill: var(--warn) } .sv-s.b { fill: var(--b) } .sv-s.bad { fill: var(--bad) }
+.sv-l-soft { stroke: var(--soft); stroke-width: 1.6; fill: none }
+.sv-l-ink { stroke: var(--ink); stroke-width: 1.8; fill: none }
+.sv-l-acc { stroke: var(--accent); stroke-width: 2.2; fill: none }
+.sv-l-warn { stroke: var(--warn); stroke-width: 2.2; fill: none }
+.sv-l-b { stroke: var(--b); stroke-width: 2.2; fill: none }
+.sv-l-bad { stroke: var(--bad); stroke-width: 2.2; fill: none }
+.sv-l-grid { stroke: var(--grid); stroke-width: 1; fill: none }
+.sv-f-soft, .sv-fill-soft { fill: var(--soft) } .sv-f-ink, .sv-fill-ink { fill: var(--ink) } .sv-f-acc, .sv-fill-acc { fill: var(--accent) }
+.sv-f-warn, .sv-fill-warn { fill: var(--warn) } .sv-f-b, .sv-fill-b { fill: var(--b) } .sv-f-bad, .sv-fill-bad { fill: var(--bad) }
+.sv-fill-tint { fill: var(--tint) } .sv-fill-warnbg { fill: var(--warnbg) } .sv-fill-grid { fill: var(--grid) }
+details.more { border: 1px solid var(--line); border-radius: 10px; background: var(--panel); max-width: 72ch }
+details.more summary { cursor: pointer; padding: 10px 16px; color: var(--accent); font-weight: 500; list-style-position: inside }
+details.more .more-body { padding: 0 16px 12px; display: flex; flex-direction: column; gap: 10px }
+.steps { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 12px }
+.steps-head { display: flex; flex-direction: column; gap: 2px }
+.steps-head .tag { font: 600 12px var(--f-mono); letter-spacing: .06em; color: var(--accent) }
+.steps-fig svg { width: 100%; height: auto; display: block }
+.steps-text { min-height: 3.4em; font-size: 15.5px; line-height: 1.7; max-width: 72ch }
+.steps-n { font: 600 13px var(--f-mono); color: var(--accent); margin-right: 6px }
+.steps-nav { display: flex; align-items: center; gap: 12px; flex-wrap: wrap }
+.steps-nav button:disabled { opacity: .4; cursor: default }
+.steps-dots { display: flex; gap: 6px; flex: 1; justify-content: center }
+.steps-dots i { width: 8px; height: 8px; border-radius: 50%; background: var(--line) }
+.steps-dots i.on { background: var(--accent) }
+.assume { border-left: 3px solid var(--line); padding: 6px 12px; color: var(--soft); font-size: 13.5px; max-width: 78ch }
+.assume b { color: var(--ink); font-weight: 500 }
+.cv { width: 100%; border-radius: 8px; overflow: hidden; background: var(--bg); touch-action: none }
+.cv canvas { display: block; width: 100% }
+.cvs { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px }
+.controls { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px 20px; align-items: end }
+.ctl { display: flex; flex-direction: column; gap: 4px; min-width: 0 }
+.ctl label, .ctl .lab { display: flex; justify-content: space-between; gap: 8px; font-size: 13.5px; color: var(--soft) }
+.ctl output { font: 600 13px var(--f-mono); color: var(--ink); font-variant-numeric: tabular-nums }
+input[type=range] { width: 100%; accent-color: var(--accent) }
+.seg-wrap { grid-column: span 1 }
+.seg { display: flex; flex-wrap: wrap; gap: 4px }
+.seg button, .btn { font: 500 13.5px var(--f-body); border: 1px solid var(--line); background: var(--bg); color: var(--ink); border-radius: 6px; padding: 5px 10px; cursor: pointer }
+.seg button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--panel) }
+.btn:hover, .seg button:hover { border-color: var(--accent) }
+.btn.primary { background: var(--accent); color: var(--panel); border-color: var(--accent) }
+button:focus-visible, input:focus-visible, a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px }
+.btnrow { display: flex; flex-wrap: wrap; gap: 8px; align-items: center }
+.readout { display: flex; flex-wrap: wrap; gap: 8px 22px; font-size: 13.5px; color: var(--soft); font-variant-numeric: tabular-nums }
+.readout b { font: 600 14px var(--f-mono); color: var(--ink) }
+.readout .hot { color: var(--bad) }
+.readout .good { color: var(--ok) }
+.try { font-size: 14.5px; border-left: 3px solid var(--warn); padding: 4px 0 4px 14px; max-width: 70ch }
+.try ol { margin-top: 4px }
+
+.key { border: 1.5px solid var(--accent); border-radius: 10px; padding: 16px 20px; max-width: 68ch; display: flex; flex-direction: column; gap: 8px }
+.quiz { display: flex; flex-direction: column; gap: 16px; max-width: 72ch }
+.q { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px 18px; display: flex; flex-direction: column; gap: 10px }
+.q[data-done] { border-color: var(--ok) }
+.opts { display: flex; flex-direction: column; gap: 6px }
+.opt { text-align: left; font: 15px/1.5 var(--f-body); color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px; cursor: pointer }
+.opt:hover { border-color: var(--accent) }
+.opt.right { border-color: var(--ok); background: color-mix(in srgb, var(--ok) 14%, var(--panel)) }
+.opt.wrong { border-color: var(--bad); background: color-mix(in srgb, var(--bad) 12%, var(--panel)) }
+.expl { font-size: 14.5px; color: var(--soft) }
+.okt { color: var(--ok) } .badt { color: var(--bad) }
+.quiz-state { font-size: 14px; color: var(--soft) }
+.quiz-state.done { color: var(--ok); font-weight: 600 }
+.pager { display: flex; justify-content: space-between; gap: 12px; margin-top: 28px; flex-wrap: wrap }
+.pager a { text-decoration: none; border: 1px solid var(--line); background: var(--panel); border-radius: 8px; padding: 10px 14px; color: var(--ink); font-size: 14.5px; max-width: 48% }
+.pager a:hover { border-color: var(--accent) }
+.pager a .d { display: block; font-size: 12px; color: var(--soft) }
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px }
+.card { display: flex; flex-direction: column; gap: 4px; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; text-decoration: none; color: var(--ink) }
+.card:hover { border-color: var(--accent) }
+.card .n { font: 600 13px var(--f-mono); color: var(--accent) }
+.card .t { font: 600 16px var(--f-head) }
+.card .s { font-size: 13.5px; color: var(--soft); line-height: 1.5 }
+.card.done { border-color: var(--ok) }
+
+@media (max-width: 860px) {
+  .app { grid-template-columns: minmax(0, 1fr) }
+  nav { position: static; height: auto; border-right: 0; border-bottom: 1px solid var(--line); padding-block: 14px; padding-right: max(16px, env(safe-area-inset-right, 0px)) }
+  nav .brand-sub { display: none }
+  nav ol { flex-direction: row; overflow-x: auto; gap: 4px; padding-bottom: 4px }
+  nav a { display: flex; white-space: nowrap; gap: 4px }
+  nav a .t { display: none }
+  nav a[aria-current="page"] .t { display: inline }
+  nav .sep { display: none }
+  nav .part { display: none }
+  main { padding-block: 24px 60px }
+  .pager a { max-width: 100%; flex: 1 1 100% }
+}
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important } }
+</style>
+<div class="app">
+  <nav id="nav" aria-label="课程目录"></nav>
+  <main id="main"></main>
+</div>
+<!--SCRIPTS-->
